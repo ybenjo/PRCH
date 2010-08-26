@@ -52,6 +52,7 @@ end
 def parse_xml(year, file_name, error_flag)
   open("#{PATH}/#{year}/#{file_name}"){|f|
     xml = Hpricot(f.read)
+    #訂正公報の場合、"publication-reference"/"document-id"/"doc-number"が2つ存在する
     id = (xml/"publication-reference"/"document-id"/"doc-number").first.inner_text.to_i
   }
 end
