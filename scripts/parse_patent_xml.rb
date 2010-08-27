@@ -4,20 +4,20 @@ require "rubygems"
 require "hpricot"
 require "tokyocabinet"
 
-PATH = "../patent"
+DATA_PATH = "../patent"
 
 #tokyocabinetからの読み書き
 def get_entry(key, year)
   db = TokyoCabinet::HDB.new
 
   #まずは#{year}.hdbから読み込む
-  db.open("../data/#{year}.hdb", HDB::OWRITER | HDB::OCREAT)
+  db.open("#{DATA_PATH}/db/#{year}.hdb", HDB::OWRITER | HDB::OCREAT)
   value_1 = Marshal.load(db.get(key))
   db.close
 
   #その後#{year}_error.hdbも読み込む
   #valueが存在しない場合nilが返ってくる
-  db.open("../data/#{year}_error.hdb", HDB::OWRITER | HDB::OCREAT)
+  db.open("#{DATA_PATH}/db/#{year}_error.hdb", HDB::OWRITER | HDB::OCREAT)
   value_2 = db.get(key)
   db.close
 
@@ -30,9 +30,9 @@ def put_entry(key, value, year, error_flag)
   
   #error_flagがtrueの場合は#{year}_error.hdbを開く
   if error_flag
-    db.open("../data/#{year}_error.hdb", HDB::OWRITER | HDB::OCREAT)
+    db.open("#{DATA_PATH}/db/#{year}_error.hdb", HDB::OWRITER | HDB::OCREAT)
   else
-    db.open("../data/#{year}.hdb", HDB::OWRITER | HDB::OCREAT)    
+    db.open("#{DATA_PATH}/db/#{year}.hdb", HDB::OWRITER | HDB::OCREAT)    
   end
 
   db.put(key, Marshal.dump(value))
@@ -42,7 +42,7 @@ end
 #ex. get_kind("H16", "1995091152.xml")
 #カインドを取得するだけのメソッド
 def get_kind(year, file_name)
-  open("#{PATH}/#{year}/#{file_name}"){|f|
+  open("#{DATA_PATH}/#{year}/#{file_name}"){|f|
     xml = Hpricot(f.read)
     return (xml/:kind).inner_text.toutf8
   }
@@ -50,7 +50,7 @@ end
 
 #ex. parse_xml("H16", "1995091152.xml")
 def parse_xml(year, file_name, error_flag)
-  open("#{PATH}/#{year}/#{file_name}"){|f|
+  open("#{DATA_PATH}/#{year}/#{file_name}"){|f|
     xml = Hpricot(f.read)
     #訂正公報の場合、"publication-reference"/"document-id"/"doc-number"が2つ存在する
     id = (xml/"publication-reference"/"document-id"/"doc-number").first.inner_text.to_i
@@ -59,7 +59,7 @@ end
 
 if $0 == __FILE__
   year = "H16"
-  Dir.foreach("#{PATH}/#{year}") do |fname|
+  Dir.foreach("#{DATA_PATH}/#{year}") do |fname|
 
     #特許公報のみ使用するためのチェック
     next if fname == "." || fname == ".."
