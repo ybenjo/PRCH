@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require "kconv"
+require "logger"
 require "rubygems"
 require "hpricot"
 require "tokyocabinet"
@@ -61,10 +62,15 @@ end
 
 #ex. parse_xml("H16", "1995091152.xml")
 def parse_and_put_xml(year, file_name)
+  #ログ出力
+  $log.info("Reading #{file_name}.")
 
   #kindが特許公報で無い場合falseを返して終了
   kind = get_kind(year, file_name)
-  return false if kind !~ /特許公報/
+  if kind !~ /特許公報/
+    $log.error("#{file_name}は特許公報ではない")
+    return false
+  end
 
   #訂正情報の判定
   error_flag = kind =~ /訂正/ ? true : false
@@ -78,7 +84,11 @@ def parse_and_put_xml(year, file_name)
 
     #タイトルが存在しない場合、処理を終了させる
     tmp_title = (xml/"invention-title")
-    exit if tmp_title.size == 0
+    if tmp_title.size == 0
+      $log.error("#{file_name}にはタイトルが存在しない")
+      return false
+    end
+    
     title = tmp_title.first.inner_text.toutf8
     
     body = (xml/"description").inner_text.toutf8
@@ -99,7 +109,7 @@ def parse_and_put_xml(year, file_name)
     else
       app_id = nil
     end
-
+    
     #tokyocabinetへの書き込み
     #本来ならネストしたhashをMarshal.dumpするところだがC/C++で叩く予定があるので
     #今回は属性ごとに別のデータベースファイルを作る。非常に煩雑
@@ -123,7 +133,6 @@ end
 
 #ex. parse_all_xml("H16")
 def parse_and_put_all_xml(year)
-
   file_size = Dir.entries("#{DATA_PATH}/#{year}").size - 2
   count = 0.0
   
@@ -138,5 +147,9 @@ end
 
 if $0 == __FILE__
   year = ARGV[0]
+
+  #めんどくさいのでグローバル変数で
+  $log = Logger.new("#{DATA_PATH}/logs/#{year}.log")
+  
   parse_and_put_all_xml(year)
 end
