@@ -74,19 +74,26 @@ def parse_and_put_xml(year, file_name)
     
     #訂正公報の場合、"publication-reference"/"document-id"/"doc-number"が2つ存在する
     #特許番号、本文、タイトル、IPCのmain-clsfを取得
-    #ipcは先頭三文字(ex. A01)までを取得する(これはクラスと呼ばれる分類)
     patent_id = (xml/"publication-reference"/"document-id"/"doc-number").first.inner_text.to_i
-    title = (xml/"invention-title").first.inner_text.toutf8
+
+    #タイトルが存在しない場合、処理を終了させる
+    tmp_title = (xml/"invention-title")
+    exit if tmp_title.size == 0
+    title = tmp_title.first.inner_text.toutf8
+    
     body = (xml/"description").inner_text.toutf8
+
+    #ipcは先頭三文字(ex. A01)までを取得する(これはクラスと呼ばれる分類)
     ipc = (xml/"classification-ipc"/"main-clsf").inner_text.toutf8[0..2]
 
     #app_id|nameを取得
     #これは特許を申請した会社のid|name
-    #idは空の場合nilでは無く謎スペースが入っているので、スペースがマッチしたらnilを返しておく
-    #app_id|nameが存在しない場合があるのでその判定もついでに行う
+    #app_id|nameが存在しない場合があるのでその判定を行う
     tmp_id = (xml/"applicant"/"registered-number")
     if tmp_id.size > 0
       app_id = tmp_id.first.inner_text.toutf8
+      
+      #idは空の場合nilでは無く謎スペースが入っているので、スペースがマッチしたらnilを返しておく
       app_id = nil if app_id[0] == " "
       app_name = (xml/"applicant"/"name").first.inner_text.toutf8
     else
