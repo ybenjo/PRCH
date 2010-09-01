@@ -8,7 +8,8 @@ PRCH(Patent aRChiver)は日本における特許、とりわけ製薬分野に�
 
 ## 実行環境
 以下の環境で実行を行っています。
-* Ruby1.8.7
+
+* Ruby 1.8.7
   * RubyGems, Hpricot
 * Tokyo Cabinet 及び Ruby API 
 * g++
