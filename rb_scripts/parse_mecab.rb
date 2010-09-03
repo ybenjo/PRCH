@@ -7,17 +7,22 @@ require "tokyocabinet"
 include TokyoCabinet
 require "MeCab"
 require "./db_util.rb"
+require "kconv"
+require "jcode"
+$KCODE = 'u'
 
 DATA_PATH = "../patent"
 
 #文をparseし名詞のみのbug-of-wordsを返す
+#今回は全角英数を半角英数に変換するのみに留め、
+#文字数などでのフィルタリングを行わない
 def parse_sentence(sentence)
   c = MeCab::Tagger.new(ARGV.join(" "))
   n = c.parseToNode(sentence)
   bow = Hash.new{|h,k|h[k] = 0}
   while n do
     pos = n.feature.split(",").first
-    word = n.surface.downcase
+    word = n.surface.tr("ａ-ｚＡ-Ｚ０-９", "a-zA-Z0-9")
     bow[word] += 1 if pos == "名詞"
     n = n.next
   end
@@ -63,7 +68,8 @@ end
 if __FILE__ == $0
   year = ARGV[0]
   error_flag = ARGV[1] == "true" ? true : false
-  conv_sequential(:year => year,
+  conv_sequential(
+                  :year => year,
                   :flag => error_flag
                   )
 end
