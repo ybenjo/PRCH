@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -44,6 +45,8 @@ protected:
   map<unint, vector<unint> > bag_of_words;
   //
   map<key, int> N_kj, N_wk;
+  //word_idのuniqを取るために使うset
+  set<unint> uniq_word_id;
 };
 
 
