@@ -7,12 +7,12 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <stdlib.h>
 #include <time.h>
 
 using namespace std;
 
-//
 typedef unsigned int unint;
 typedef pair<unint, unint> key;
 typedef pair<key, unint> triple_key;
@@ -29,13 +29,21 @@ public:
     srand(time(0));
   };
   
-  void read_file(char & filename);
+  void read_file(char *filename);
+  vector<string> split(string line);
+  void set_bag_of_words(unint doc_id, unint word_id, unint count);
+  
   double get_uniform_rand();
   void set_N();
 protected:
+  //サンプリング時のパラメータ
   double alpha, beta;
+  //Kはトピック数(パラメータ), Wはwordのユニーク数
   unint K, W;
-  map<key, unint> N_kj, N_wk;
+  //keyはdoc_id, valueはword_idが入ったvector
+  map<unint, vector<unint> > bag_of_words;
+  //
+  map<key, int> N_kj, N_wk;
 };
 
 
