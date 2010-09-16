@@ -2,16 +2,67 @@
 #include <lda.hpp>
 
 TEST(lda, Testsplit){
-  LDA agent;
-  vector<string> ret = agent.split("これは	テスト	です");
+  LDA lda;
+  vector<string> ret = lda.split("これは	テスト	です");
   EXPECT_EQ("これは", ret[0]);
   EXPECT_EQ("テスト", ret[1]);
   EXPECT_EQ("です", ret[2]);
 }
 
 TEST(lda, Testread_file){
-  LDA agent;
-  agent.read_file("../patent/test.txt");
+  LDA lda;
+  lda.read_file("../patent/test.txt");
+  // 1       1       1
+  // 1       2       2
+  // 1       3       3
+  // 2       1       2
+  // 2       4       3
+  EXPECT_EQ(1, lda.bag_of_words[key(1, 1)]);
+  EXPECT_EQ(2, lda.bag_of_words[key(1, 2)]);
+  EXPECT_EQ(3, lda.bag_of_words[key(1, 3)]);
+  EXPECT_EQ(2, lda.bag_of_words[key(2, 1)]);
+  EXPECT_EQ(3, lda.bag_of_words[key(2, 4)]);
+}
+
+TEST(lda, Testset_initial_N){
+  unint K = 5;
+  LDA lda(0, 0, K);
+  lda.read_file("../patent/test.txt");
+  lda.set_initial_N_all();
+  //こことかどうテストすればいいのか？
+  cout << "1, 1 -> " << lda.Z[key(1, 1)] << endl;
+  cout << "1, 2 -> " << lda.Z[key(1, 2)] << endl;
+  cout << "1, 3 -> " << lda.Z[key(1, 3)] << endl;
+  cout << "2, 1 -> " << lda.Z[key(2, 1)] << endl;
+  cout << "2, 4 -> " << lda.Z[key(2, 4)] << endl;
+}
+
+TEST(lda, Testsampling){
+  unint K = 5;
+  LDA lda(K/50, 0.1, K);
+  lda.read_file("../patent/test.txt");
+  lda.set_initial_N_all();
+  
+  unint doc_id = 1, word_id = 1;
+  unint init_z = lda.Z[key(doc_id, word_id)];
+  unint init_n_kj = lda.N_kj[key(init_z, doc_id)];
+  unint init_n_wk = lda.N_wk[key(word_id, init_z)];
+  unint init_n_k = lda.N_k[init_z];
+  
+  lda.sampling(doc_id, word_id);
+  
+  unint new_z = lda.Z[key(doc_id, word_id)];
+
+  //これぐらいしか確認できない
+  if(init_z != new_z){
+    EXPECT_EQ(lda.N_kj[key(init_z, doc_id)], init_n_kj - 1);
+    EXPECT_EQ(lda.N_wk[key(word_id, init_z)], init_n_wk - 1);
+    EXPECT_EQ(lda.N_k[init_z], init_n_k - 1);
+  }else{
+    EXPECT_EQ(lda.N_kj[key(init_z, doc_id)], init_n_kj);
+    EXPECT_EQ(lda.N_wk[key(word_id, init_z)], init_n_wk);
+    EXPECT_EQ(lda.Z[key(doc_id, word_id)], init_z);
+  }
 }
 
 

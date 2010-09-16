@@ -16,7 +16,6 @@ using namespace std;
 
 typedef unsigned int unint;
 typedef pair<unint, unint> key;
-typedef pair<key, unint> triple_key;
 
 class LDA{
 public:
@@ -24,27 +23,41 @@ public:
     srand(time(0));
   };
   
-  LDA(double alpha, double beta){
+  LDA(double alpha, double beta, unint topic){
     this->alpha = alpha;
     this->beta = beta;
+    this->K = topic;
     srand(time(0));
   };
   
   void read_file(char *filename);
   vector<string> split(string line);
-  void set_bag_of_words(unint doc_id, unint word_id, unint count);
-  
+
+  //確率周りの関数
   double get_uniform_rand();
-  void set_N();
-protected:
+  double calc_prob(unint doc_id, unint word_id, unint topic);
+  unint select_new_topic(unint doc_id, unint word_id);
+  void sampling(unint doc_id, unint word_id);
+  
+  //setter/getter
+  void set_bag_of_words(unint doc_id, unint word_id, unint count);
+  void set_initial_N(unint doc_id, unint word_id);
+  void set_initial_N_all();
+  
   //サンプリング時のパラメータ
   double alpha, beta;
-  //Kはトピック数(パラメータ), Wはwordのユニーク数
+  //Kはトピック数(パラメータ), Wはユニークな単語数
   unint K, W;
-  //keyはdoc_id, valueはword_idが入ったvector
-  map<unint, vector<unint> > bag_of_words;
-  //
-  map<key, int> N_kj, N_wk;
+  //map<(doc_id, word_id), count>
+  map<key, unint> bag_of_words;
+  //N_kj -> map<(topic, doc_id), count>
+  //N_wk -> map<(word_id, topic), count>
+  map<key, unint> N_kj, N_wk;
+  //N_kはトピックごとの単語数
+  map<unint, unint> N_k;
+  //Zはdoc_idとword_idの組み合わせからtopicをアレする変数
+  map<key, unint> Z;
+  
   //word_idのuniqを取るために使うset
   set<unint> uniq_word_id;
 };
