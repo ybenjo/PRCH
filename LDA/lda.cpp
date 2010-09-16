@@ -174,6 +174,7 @@ void LDA::output(const char *filename, unint limit){
     ofs << "# " <<  k << "'s topic" << endl;
     int count = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
+      count++;
       ofs << rev->second << "," << rev->first << endl;
       if(count > limit){break;}
     }
