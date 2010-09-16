@@ -18,6 +18,9 @@ void LDA::read_file(char *filename){
   
   //ユニークな単語数を取得
   this->W = this->uniq_word_id.size();
+
+  //Nを初期化
+  this->set_initial_N_all();
 }
 
 vector<string> LDA::split(string line){
@@ -40,11 +43,19 @@ void LDA::set_initial_N(unint doc_id, unint word_id){
   for(int i = 0; i < count; ++i){
     //初期のtopicはランダムに割り振る
     unint topic = rand() / (RAND_MAX / (this->K));
-    Z[key(doc_id, word_id)] = topic;
-    N_kj[key(topic, doc_id)]++;
-    N_wk[key(word_id, topic)]++;
-    N_k[topic]++;
+    this->set_Z(doc_id, word_id, i, topic);
+    this->N_kj[key(topic, doc_id)]++;
+    this->N_wk[key(word_id, topic)]++;
+    this->N_k[topic]++;
   }
+}
+
+void LDA::set_Z(unint doc_id, unint word_id, unint t, unint topic){
+  this->Z[make_pair(key(doc_id, word_id), t)] = topic;
+}
+
+unint LDA::get_Z(unint doc_id, unint word_id, unint t){
+  return this->Z[make_pair(key(doc_id, word_id), t)];
 }
 
 void LDA::set_initial_N_all(){
@@ -73,10 +84,9 @@ unint LDA::select_new_topic(unint doc_id, unint word_id){
   //サンプリング用の確率分布を生成する
   map<unint, double> prob;
   for(int i = 0; i < this->K; ++i){
-    if(i == 0){
-      prob[i] = calc_prob(doc_id, word_id, i);
-    }else{
-      prob[i] = prob[i-1] + calc_prob(doc_id, word_id, i);
+    prob[i] = calc_prob(doc_id, word_id, i);
+    if(i != 0){
+      prob[i] += prob[i-1];
     }
   }
 
@@ -91,8 +101,9 @@ unint LDA::select_new_topic(unint doc_id, unint word_id){
   return new_topic;
 }
 
-void LDA::sampling(unint doc_id, unint word_id){
-  unint topic = this->Z[key(doc_id, word_id)];
+//tはdoc_idにおいてword_idのうち何番目かを示す
+void LDA::sampling(unint doc_id, unint word_id, unint t){
+  unint topic = this->get_Z(doc_id, word_id,  t);
   //まずは一度取り除く
   this->N_kj[key(topic, doc_id)]--;
   this->N_wk[key(word_id, topic)]--;
@@ -102,8 +113,71 @@ void LDA::sampling(unint doc_id, unint word_id){
   unint new_topic = select_new_topic(doc_id, word_id);
   
   //N_*な変数を更新
-  this->Z[key(doc_id, word_id)] = new_topic;
+  this->set_Z(doc_id, word_id, t, new_topic);
   this->N_kj[key(new_topic, doc_id)]++;
   this->N_wk[key(word_id, new_topic)]++;
   this->N_k[new_topic]++;
 }
+
+void LDA::all_sampling(unint count){
+  map<key, unint>::iterator i;
+  for(int j = 0;j < count;++j){
+    for(i = this->bag_of_words.begin(); i != this->bag_of_words.end();++i){
+      unint doc = (i->first).first;
+      unint word = (i->first).second;
+      unint t = i->second;
+      this->sampling(doc, word, t);
+    }
+  }
+}
+
+void LDA::output(const char *filename, unint limit){
+  map<key, unint>::iterator i;
+  for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+    unint j = (i->first).second;
+    this->N_j[j] += i->second;
+  }
+  
+  map<key, double> phi, theta;
+    
+  //phiの計算
+  for(i = this->N_wk.begin(); i != this->N_wk.end(); ++i){
+    unint word = (i->first).first;
+    unint topic = (i->first).second;
+    phi[key(word, topic)] = (this->N_wk[key(word, topic)] + this->beta) / (this->N_k[topic] + this->W * this->beta);
+  }
+  
+  //thetaの計算
+  //   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+  //     unint topic = (i->first).first;
+  //     unint doc = (i->first).second;
+  //     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
+  //   }
+
+  //トピックごとに単語の上位limit件を出力
+  ofstream ofs;
+  ofs.open(filename);
+  for(int k = 0; k < this->K; ++k){
+    multimap<double, unint> phi_;
+
+    //multimapに入れて確率順にソート
+    for(i = this->N_wk.begin(); i != this->N_wk.end(); ++i){
+      unint topic = (i->first).second;
+      if(topic == k){
+	unint word = (i->first).first;
+	phi_.insert(make_pair(phi[key(word, topic)], word));
+      }
+    }
+    
+    //出力
+    multimap<double, unint>::reverse_iterator rev;
+    ofs << "# " <<  k << "'s topic" << endl;
+    int count = 0;
+    for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
+      ofs << rev->second << "," << rev->first << endl;
+      if(count > limit){break;}
+    }
+  }
+  ofs.close();
+}
+

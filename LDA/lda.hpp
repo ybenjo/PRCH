@@ -29,20 +29,26 @@ public:
     this->K = topic;
     srand(time(0));
   };
-  
+
   void read_file(char *filename);
   vector<string> split(string line);
 
-  //確率周りの関数
+  //サンプリング周りの関数
   double get_uniform_rand();
   double calc_prob(unint doc_id, unint word_id, unint topic);
   unint select_new_topic(unint doc_id, unint word_id);
-  void sampling(unint doc_id, unint word_id);
+  void sampling(unint doc_id, unint word_id, unint t);
+  void all_sampling(unint count);
   
-  //setter/getter
+  //setter
   void set_bag_of_words(unint doc_id, unint word_id, unint count);
   void set_initial_N(unint doc_id, unint word_id);
   void set_initial_N_all();
+  void set_Z(unint doc_id, unint word_id, unint t, unint topic);
+  unint get_Z(unint doc_id, unint word_id, unint t);
+
+  //output
+  void output(const char *filename, unint limit);
   
   //サンプリング時のパラメータ
   double alpha, beta;
@@ -55,8 +61,10 @@ public:
   map<key, unint> N_kj, N_wk;
   //N_kはトピックごとの単語数
   map<unint, unint> N_k;
-  //Zはdoc_idとword_idの組み合わせからtopicをアレする変数
-  map<key, unint> Z;
+  //N_jは文書ごとの単語数
+  map<unint, unint> N_j;
+  //Zはdoc_idとword_id, 登場時の順番からtopicを紐付ける変数
+  map<pair<key, unint>, unint> Z;
   
   //word_idのuniqを取るために使うset
   set<unint> uniq_word_id;
