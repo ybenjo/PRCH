@@ -122,6 +122,7 @@ void LDA::sampling(unint doc_id, unint word_id, unint t){
 void LDA::all_sampling(unint count){
   map<key, unint>::iterator i;
   for(int j = 0;j < count;++j){
+    cout << j + 1 << "'s iteration" << endl;
     for(i = this->bag_of_words.begin(); i != this->bag_of_words.end();++i){
       unint doc = (i->first).first;
       unint word = (i->first).second;
