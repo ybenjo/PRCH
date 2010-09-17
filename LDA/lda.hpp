@@ -48,7 +48,8 @@ public:
   unint get_Z(unint doc_id, unint word_id, unint t);
 
   //output
-  void output(const char *filename, unint limit);
+  void read_dictionary(char *filename);
+  void output(char *filename, unint limit, char *flag);
   
   //サンプリング時のパラメータ
   double alpha, beta;
@@ -65,6 +66,9 @@ public:
   map<unint, unint> N_j;
   //Zはdoc_idとword_id, 登場時の順番からtopicを紐付ける変数
   map<pair<key, unint>, unint> Z;
+
+  //dicはidとwordを結びつけるmap
+  map<unint, string> dic;
   
   //word_idのuniqを取るために使うset
   set<unint> uniq_word_id;

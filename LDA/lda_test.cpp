@@ -68,7 +68,7 @@ TEST(lda, Testoutput){
   LDA lda(K/50, 0.1, K);
   lda.read_file("../patent/test.txt");
   lda.all_sampling(10);
-  lda.output("../patent/dummy.txt", 10);
+  lda.output("../patent/dummy.txt", 10, "false");
   //まずはN_jの確認
   EXPECT_EQ(6, lda.N_j[1]);
   EXPECT_EQ(5, lda.N_j[2]);

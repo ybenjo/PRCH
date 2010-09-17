@@ -132,7 +132,26 @@ void LDA::all_sampling(unint count){
   }
 }
 
-void LDA::output(const char *filename, unint limit){
+void LDA::read_dictionary(char *filename){
+  //filenameが"false"のは読み込みを行わない
+  if(filename != "false"){
+    ifstream ifs;
+    ifs.open(filename, ios::in);
+    string line;
+    
+    while(getline(ifs, line)){
+      //想定するファイルの形式は
+      //word_id \t word
+      vector<string> elem = this->split(line);
+      unint word_id = atoi(elem[0].c_str());
+      string word = elem[1];
+      this->dic[word_id] = word;
+    }
+    ifs.close();
+  }
+}
+
+void LDA::output(char *filename, unint limit, char *flag){
   map<key, unint>::iterator i;
   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
     unint j = (i->first).second;
@@ -176,7 +195,11 @@ void LDA::output(const char *filename, unint limit){
     int count = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
       count++;
-      ofs << rev->second << "," << rev->first << endl;
+      if(flag != "false"){
+	ofs << this->dic[rev->second] << "," << rev->first << endl;
+      }else{
+	ofs << rev->second << "," << rev->first << endl;
+      }
       if(count > limit){break;}
     }
   }
