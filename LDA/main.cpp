@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 int main(int argc, char **argv){
-  char *input_filename, *output_filename, *dic_filename = "false";
+  char *input_filename, *output_filename = "", *dic_filename = "false";
   unint result, k, iteration = 100, limit = 10;
   double alpha = 0, beta = 0.1;
 
@@ -28,6 +28,10 @@ int main(int argc, char **argv){
     alpha = 50 / k;
   }
 
+  if(output_filename == ""){
+    output_filename = "./result";
+  }
+  
   LDA lda(alpha, beta, k);
   lda.read_file(input_filename);
   lda.all_sampling(iteration);
