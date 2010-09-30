@@ -2,12 +2,13 @@
 #include <unistd.h>
 
 int main(int argc, char **argv){
-  char *input_filename, *output_filename = "", *dic_filename = "false";
-  unint result, k, iteration = 100, limit = 10;
+  char *input_filename = NULL, *output_filename = NULL, *dic_filename = NULL;
+  bool debug_flag = false;
+  unint result, k = 10, iteration = 10, limit = 10;
   double alpha = 0, beta = 0.1;
 
   while(1){
-    result = getopt(argc, argv, "i:o:a:k:t:b:l:d:");
+    result = getopt(argc, argv, "i:o:a:k:t:b:l:d:x");
     if(result == -1) break;
     
     switch(result){
@@ -19,6 +20,7 @@ int main(int argc, char **argv){
     case 'k' : k = atoi(optarg); break;
     case 't' : iteration = atoi(optarg); break;
     case 'l' : limit = atoi(optarg); break;
+    case 'x' : debug_flag = true; break;
     }
     optarg = NULL; 
   }
@@ -28,11 +30,17 @@ int main(int argc, char **argv){
     alpha = 50 / k;
   }
 
-  if(output_filename == ""){
+  if(output_filename == NULL){
     output_filename = "./result";
   }
+
+  if(input_filename == NULL){
+    cout << "No input file!" << endl;
+    exit(1);
+  }
+
   
-  LDA lda(alpha, beta, k);
+  LDA lda(alpha, beta, k, debug_flag);
   lda.read_file(input_filename);
   lda.all_sampling(iteration);
   lda.read_dictionary(dic_filename);

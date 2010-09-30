@@ -38,6 +38,7 @@ word_id_3,prob_id_3
 * -a:サンプリングパラメータ \alpha。省略時は50 / k
 * -b:サンプリングパラメータ \beta。省略時は0.1
 * -d:辞書ファイル。形式はword_id \t word。省略時はidがそのまま出力される。
+* -x:追加した場合デバッグ用出力
 
 ## 参考文献
 Griffiths TL, Steyvers M. Finding scientific topics. Proceedings of the National Academy of Sciences of the United States of America. 2004;101 Suppl 1:5228-35.  

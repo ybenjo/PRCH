@@ -4,7 +4,9 @@ void LDA::read_file(char *filename){
   ifstream ifs;
   ifs.open(filename, ios::in);
   string line;
-  
+
+  this->show_debug("Start reading file.");
+  int line_count = 0;
   while(getline(ifs, line)){
     //想定するファイルの形式は
     //doc_id \t word_id \t count
@@ -12,15 +14,20 @@ void LDA::read_file(char *filename){
     unint doc_id = atoi(elem[0].c_str());
     unint word_id = atoi(elem[1].c_str());
     unint count = atoi(elem[2].c_str());
-    this->set_bag_of_words(doc_id, word_id, count);
+
+    //bag_of_wordsへの挿入
+    this->uniq_word_id.insert(word_id);
+    this->set_N_and_Z(doc_id, word_id, count);
+
+    line_count++;
+    this->show_debug(line_count);
   }
   ifs.close();
+
+  this->show_debug("Finish reading file and set N and Z.");
   
   //ユニークな単語数を取得
-  this->W = this->uniq_word_id.size();
-
-  //Nを初期化
-  this->set_initial_N_all();
+  this->W = uniq_word_id.size();
 }
 
 vector<string> LDA::split(string line){
@@ -33,36 +40,19 @@ vector<string> LDA::split(string line){
   return words;
 }
 
-void LDA::set_bag_of_words(unint doc_id, unint word_id, unint count){
-  this->bag_of_words[key(doc_id, word_id)] = count;
-  this->uniq_word_id.insert(word_id);
-}
-
-void LDA::set_initial_N(unint doc_id, unint word_id){
-  unint count = this->bag_of_words[key(doc_id, word_id)];
+void LDA::set_N_and_Z(unint doc_id, unint word_id, unint count){
+  vector<unint> each_doc;
+  each_doc.push_back(doc_id);
+  each_doc.push_back(word_id);
   for(int i = 0; i < count; ++i){
     //初期のtopicはランダムに割り振る
     unint topic = rand() / (RAND_MAX / (this->K));
-    this->set_Z(doc_id, word_id, i, topic);
+    each_doc.push_back(topic);
     this->N_kj[key(topic, doc_id)]++;
     this->N_wk[key(word_id, topic)]++;
     this->N_k[topic]++;
   }
-}
-
-void LDA::set_Z(unint doc_id, unint word_id, unint t, unint topic){
-  this->Z[make_pair(key(doc_id, word_id), t)] = topic;
-}
-
-unint LDA::get_Z(unint doc_id, unint word_id, unint t){
-  return this->Z[make_pair(key(doc_id, word_id), t)];
-}
-
-void LDA::set_initial_N_all(){
-  map<key, unint>::iterator i;
-  for(i = this->bag_of_words.begin(); i != this->bag_of_words.end(); ++i){
-    this->set_initial_N((i->first).first, (i->first).second);
-  }
+  this->Z.push_back(each_doc);
 }
 
 double LDA::get_uniform_rand(){
@@ -102,45 +92,62 @@ unint LDA::select_new_topic(unint doc_id, unint word_id){
 }
 
 //tはdoc_idにおいてword_idのうち何番目かを示す
-void LDA::sampling(unint doc_id, unint word_id, unint t){
-  unint topic = this->get_Z(doc_id, word_id,  t);
+unint LDA::sampling(unint doc_id, unint word_id, unint prev_topic){
   //まずは一度取り除く
-  this->N_kj[key(topic, doc_id)]--;
-  this->N_wk[key(word_id, topic)]--;
-  this->N_k[topic]--;
+  this->N_kj[key(prev_topic, doc_id)]--;
+  this->N_wk[key(word_id, prev_topic)]--;
+  this->N_k[prev_topic]--;
 
   //サンプリングにより新たなトピックを選ぶ
   unint new_topic = select_new_topic(doc_id, word_id);
   
   //N_*な変数を更新
-  this->set_Z(doc_id, word_id, t, new_topic);
   this->N_kj[key(new_topic, doc_id)]++;
   this->N_wk[key(word_id, new_topic)]++;
   this->N_k[new_topic]++;
+
+  return new_topic;
 }
 
 void LDA::all_sampling(unint count){
-  map<key, unint>::iterator i;
+  //全文書全単語についてサンプリングを行う
   for(int j = 0;j < count;++j){
     cout << j + 1 << "'s iteration" << endl;
-    for(i = this->bag_of_words.begin(); i != this->bag_of_words.end();++i){
-      unint doc = (i->first).first;
-      unint word = (i->first).second;
-      unint t = i->second;
-      this->sampling(doc, word, t);
+    int z_size = Z.size();
+    for(int z_index = 0; z_index < z_size ;++z_index){
+      ostringstream oss;
+      oss << "Now " << z_index << " / " << z_size;
+      show_debug(oss.str());
+      this->sampling_word(z_index);
     }
   }
 }
 
+void LDA::sampling_word(unint z_index){
+  //doc_idにおけるword_idの登場回数だけサンプリングを行う
+  unint doc_id = Z[z_index][0];
+  unint word_id = Z[z_index][1];
+  int word_count = Z[z_index].size();
+  
+  //<doc_id, word_id, topic_1, topic_2, ..., topic_{word_count}>なので
+  //2つめ以降のみを見ていく
+  for(int i = 2;i < word_count; ++i){
+    unint prev_topic = Z[z_index][i];
+    unint new_topic = this->sampling(doc_id, word_id, prev_topic);
+    //トピックの更新
+    Z[z_index][i] = new_topic;
+  }
+}
+
 void LDA::read_dictionary(char *filename){
-  //filenameが"false"のは読み込みを行わない
-  if(filename != "false"){
+  //filenameがNULLの時は読み込みを行わない
+  if(filename != NULL){
     ifstream ifs;
     ifs.open(filename, ios::in);
     string line;
     
     while(getline(ifs, line)){
-      //想定するファイルの形式は
+      //想定する辞書ファイルの形式は
       //word_id \t word
       vector<string> elem = this->split(line);
       unint word_id = atoi(elem[0].c_str());
@@ -195,7 +202,7 @@ void LDA::output(char *filename, unint limit, char *flag){
     int count = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
       count++;
-      if(flag != "false"){
+      if(flag != NULL){
 	ofs << this->dic[rev->second] << "," << rev->first << endl;
       }else{
 	ofs << rev->second << "," << rev->first << endl;
