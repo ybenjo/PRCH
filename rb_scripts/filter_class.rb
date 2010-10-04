@@ -66,7 +66,7 @@ class Filter
   
   def del_number_symbol_kanji
     @dic.each_pair do |id, word|
-      //symbol未実装
+      #symbol未実装
       if word =~ /^\d+$/ || word =~ /^(一|二|三|四|五|六|七|八|九)$/
         @deleted_id.push id
       end
