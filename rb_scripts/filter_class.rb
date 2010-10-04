@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 $KCODE='u'
 class Filter
   def initialize(params)
@@ -33,7 +34,8 @@ class Filter
     end
     
     @h_size = params[:h_size].nil? ? nil : params[:h_size].to_i
-    @n_flag = params[:n_flag]
+    @a_size = params[:a_size].nil? ? nil : params[:a_size].to_i
+    @deleted_id = []
   end
   
   def del_hiragana
@@ -42,45 +44,54 @@ class Filter
       return 
     end
     
-    deleted_id = []
-    
     @dic.each_pair do |id, word|
       if word =~ /^(?:\xE3\x81[\x81-\xBF]|\xE3\x82[\x80-\x93])+$/ && word.split(//).size <= @h_size
-        deleted_id.push id
+        @deleted_id.push id
       end
     end
+  end
 
-    deleted_id.each do |id|
+  def del_alphabet
+    if !@a_size
+      puts "Skip del_alphabet"
+      return
+    end
+    
+    @dic.each_pair do |id, word|
+      if word =~ /^[a-zA-Z]+$/ && word.split(//).size <= @a_size
+        @deleted_id.push id
+      end
+    end
+  end
+  
+  def del_number_symbol_kanji
+    @dic.each_pair do |id, word|
+      //symbol未実装
+      if word =~ /^\d+$/ || word =~ /^(一|二|三|四|五|六|七|八|九)$/
+        @deleted_id.push id
+      end
+    end
+  end
+
+  def delete_selected_id
+    @deleted_id.each do |id|
       @dic.delete(id)
       @bow.delete(id)
     end
   end
 
-  def del_number
-    if !@n_flag
-      puts "Skip del_number"
-      return 
-    end
-
-    deleted_id = []
-    
-    @dic.each_pair do |id, word|
-      if word =~ /^\d+$/ 
-        deleted_id.push id
-      end
-    end
-    
-    deleted_id.each do |id|
-      @dic.delete(id)
-      @bow.delete(id)
-    end
+  def del_all
+    del_number_symbol_kanji
+    del_hiragana
+    del_alphabet
+    delete_selected_id
   end
 
   def output
-    name = @dic_path.sub(/\.word/,"") + "_filterd"
+    name = @dic_path.sub(/\.word/,"")
 
     name += "_h_#{@h_size}" if @h_size
-    name += "_n" if @n_flag
+    name += "_a_#{@a_size}" if @a_size
     
     open("#{name}.txt", "w"){|f|
       @bow.each_pair do |w_id, ary|
@@ -97,5 +108,4 @@ class Filter
       end
     }
   end
-  
 end
