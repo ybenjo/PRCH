@@ -81,6 +81,9 @@ public:
 
   //debug用のフラグ
   bool debug_flag;
+
+  //output用に入力ファイル名を保持
+  char *input_file_name;
 };
 
 

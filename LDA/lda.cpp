@@ -1,7 +1,14 @@
 #include "lda.hpp"
 
 void LDA::read_file(char *filename){
+
+  if(filename == NULL){
+    cout << "No input file!" << endl;
+    exit(1);
+  }
+  
   ifstream ifs;
+  this->input_file_name = filename;
   ifs.open(filename, ios::in);
   string line;
 
@@ -181,9 +188,19 @@ void LDA::output(char *filename, unint limit, char *flag){
   //     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
   //   }
 
+  //出力ファイル名生成
+  ostringstream oss;
+  if(filename == NULL){
+    oss << this->input_file_name << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
+  }else{
+    oss << filename;
+  }
+
+  cout << oss.str() << endl;
+
   //トピックごとに単語の上位limit件を出力
   ofstream ofs;
-  ofs.open(filename);
+  ofs.open((oss.str()).c_str());
   for(int k = 0; k < this->K; ++k){
     multimap<double, unint> phi_;
 

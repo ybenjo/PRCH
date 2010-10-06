@@ -29,16 +29,6 @@ int main(int argc, char **argv){
   if(alpha == 0){
     alpha = 50 / k;
   }
-
-  if(output_filename == NULL){
-    output_filename = "./result";
-  }
-
-  if(input_filename == NULL){
-    cout << "No input file!" << endl;
-    exit(1);
-  }
-
   
   LDA lda(alpha, beta, k, debug_flag);
   lda.read_file(input_filename);
