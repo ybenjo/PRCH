@@ -66,14 +66,14 @@ class Filter
   
   def del_number_symbol_kanji_num
     @dic.each_pair do |id, word|
-      if word =~ /^\d+$/ || word =~ /^(一|二|三|四|五|六|七|八|九)$/ || word !~ /^([a-zA-Z0-9ぁ-ん一-龠ァ-ヴ])+$/
+      if word =~ /^\d+$/ || word =~ /^(一|二|三|四|五|六|七|八|九)$/ || word =~ /^([^a-zA-Z0-9ぁ-ん一-龠ァ-ヴ])+$/
         @deleted_id.push id
       end
     end
   end
 
   def delete_selected_id
-    log_path = @dic_path.sub(/\.word/,"")
+    log_path = @dic_path.sub(/\.word/,".log")
     open(log_path, "w"){|f|
       puts "Writing #{log_path}"
       @deleted_id.each do |id|
@@ -85,7 +85,7 @@ class Filter
   end
 
   def del_all
-    del_number_symbol_kanji
+    del_number_symbol_kanji_num
     del_hiragana
     del_alphabet
     delete_selected_id
