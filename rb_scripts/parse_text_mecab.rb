@@ -72,13 +72,6 @@ def conv_sequential(param)
               :year => year,
               :flag => error_flag
               )
-
-    puts get_entry(:key => id,
-              :value => wc,
-              :type => "#{section}_#{hinsi}",
-              :year => year,
-              :flag => error_flag
-              )
     
     count += 1
     puts "Now #{count / size * 100}%"
