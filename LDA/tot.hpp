@@ -50,8 +50,15 @@ public:
   //N_jは文書ごとの単語数
   map<unint, unint> N_j;
   //Zはdoc_idとword_id, 登場時の順番からtopicを紐付ける変数
-  //イメージとしては<doc_id, word_id, topic_1, topic_2, ... , topic_count>を要素にもつvector
+  //イメージとしては<doc_id, doc_time, word_id, topic_1, ... , topic_count>を要素にもつvector
   vector<vector<unint> > Z;
+
+  //T_Zはtopicをkeyとして<time, ..., timeをvalueに持つmap
+  map<unint, vector<unint> > T_Z;
+
+  //PSIはベータ分布などに用いるパラメータ
+  //topicをkeyとして<psi_1, psi_2>をvalueに持つmap
+  map<unint, vector<unint> > PSI;
 
   //dicはidとwordを結びつけるmap
   map<unint, string> dic;
