@@ -1,15 +1,15 @@
-include "tot.hpp"
+#include "tot.hpp"
 
 void TOT::read_file(char *file_name){
 
-  if(filename == NULL){
+  if(file_name == NULL){
     cout << "No input file!" << endl;
     exit(1);
   }
   
   ifstream ifs;
-  input_file_name = filename;
-  ifs.open(filename, ios::in);
+  input_file_name = file_name;
+  ifs.open(file_name, ios::in);
   string line;
 
   show_debug("Start reading file.");

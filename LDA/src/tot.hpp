@@ -19,6 +19,9 @@ typedef std::pair<unint, unint> key;
 
 class TOT{
 public:
+  TOT(){
+    srand(time(0));
+  };
   TOT(double alpha, double beta, unint topic, bool debug_flag = false){
     this->alpha = alpha;
     this->beta = beta;
@@ -28,16 +31,18 @@ public:
   };
 
   //logger
-  template <typename T_n> void debug_log(T_n message){
+  template <typename T_n> void show_debug(T_n message){
     if(debug_flag){
       cout << message << endl;
     }
   }
 
-  void read_file(char *filename);
+  void read_file(char *file_name);
   vector<string> split(string line);
+  void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
 
-    //サンプリング時のパラメータ
+private:
+  //サンプリング時のパラメータ
   double alpha, beta;
   //Kはトピック数(パラメータ), Wはユニークな単語数
   unint K, W;
