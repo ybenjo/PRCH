@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 using namespace std;
 
@@ -39,10 +40,16 @@ public:
 
   void read_file(char *file_name);
   vector<string> split(string line);
+
+  //setter
   void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
 
   //getter
   vector<vector<unint> > get_Z(){return Z;};
+
+  //サンプリング周りの関数
+  double get_uniform_rand();
+  vector<double> calc_mean_and_var(const vector<unint>& years);
 
 private:
   //サンプリング時のパラメータ

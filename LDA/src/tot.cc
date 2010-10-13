@@ -66,3 +66,28 @@ vector<string> TOT::split(string line){
   }
   return words;
 }
+
+double TOT::get_uniform_rand(){
+  return (double)rand() * (1.0 / (RAND_MAX + 1.0));
+}
+
+vector<double> TOT::calc_mean_and_var(const vector<unint>& years){
+  vector<unint>::const_iterator i;
+  unint size = years.size();
+  double mean = 0.0, var = 0.0;
+  vector<double> ret;
+  
+  for(i = years.begin(); i != years.end(); ++i){
+    mean += *i;
+  }
+  mean /= size;
+  ret.push_back(mean);
+    
+  for(i = years.begin(); i != years.end(); ++i){
+    var += pow((*i - mean), 2);
+  }
+  var /= size;
+  ret.push_back(var);
+
+  return ret;
+}
