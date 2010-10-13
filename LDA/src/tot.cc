@@ -92,9 +92,10 @@ vector<double> TOT::calc_mean_and_var(const vector<unint>& years){
   return ret;
 }
 
-void TOT::set_PSI(){
-  //PSIを計算する
+void TOT::set_PSI_and_BETA(){
+  //PSI及びBETAを計算する
   PSI.clear();
+  BETA.clear();
   for(unint i = 0; i < K; ++i){
     vector<double> each_psi, m_and_v = calc_mean_and_var(T_Z[i]);
     double mean = m_and_v[0], var = m_and_v[1];
@@ -102,8 +103,25 @@ void TOT::set_PSI(){
     each_psi.push_back(mean * tmp);
     each_psi.push_back((1-mean) * tmp);
     PSI.push_back(each_psi);
+    BETA.push_back(calc_BETA(each_psi[0], each_psi[1]));
   }
 
   //計算が終わったらtopic-timeのデータであるT_Zを初期化する
   T_Z.clear();
+}
+
+//tgammaは負数を受け付けないので、しょうがないから実装する
+//負じゃない場合はtgammaをそのまま返す
+double TOT::gamma(double x){
+  if(x > 0){
+    return tgamma(x);
+  }else{
+    double xxx = -1 * x + 1;
+    return M_PI / (sin(M_PI * xxx) * tgamma(xxx));
+  }
+}
+
+//ベータ関数
+double TOT::calc_BETA(double x, double y){
+  return gamma(x) * gamma(y) / gamma(x + y);
 }

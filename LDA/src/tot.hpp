@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <time.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 using namespace std;
@@ -43,7 +44,7 @@ public:
 
   //setter
   void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
-  void set_PSI();
+  void set_PSI_and_BETA();
 
   //getter
   vector<vector<unint> > get_Z(){return Z;};
@@ -52,7 +53,8 @@ public:
   //サンプリング周りの関数
   double get_uniform_rand();
   vector<double> calc_mean_and_var(const vector<unint>& years);
-  
+  double calc_BETA(double x, double y);
+  double gamma(double x);
 
 private:
   //サンプリング時のパラメータ
@@ -74,9 +76,12 @@ private:
   //T_Zはtopicをkeyとして<time, ..., timeをvalueに持つmap
   map<unint, vector<unint> > T_Z;
 
-  //PSIはベータ分布などに用いるパラメータ
+  //PSIはベータ関数などに用いるパラメータ
   //<psi_1, psi_2>をvalueに持つvector。topicにはインデックスでアクセス
   vector<vector<double> > PSI;
+
+  //ベータ関数の値を持つvector
+  vector<double> BETA;
 
   //dicはidとwordを結びつけるmap
   map<unint, string> dic;

@@ -56,13 +56,19 @@ TEST(tot, calc_mean_and_var){
   EXPECT_DOUBLE_EQ(60.0 / 9, mean_and_var[1]);
 }
 
-TEST(tot, set_PSI){
+TEST(tot, set_PSI_and_BETA){
   TOT sampler(1.0, 0.1, 1);
   sampler.read_file("./src/tests/tot_test.txt");
-  sampler.set_PSI();
+  sampler.set_PSI_and_BETA();
   vector<vector<double> > psi = sampler.get_PSI();
   EXPECT_DOUBLE_EQ(psi[0][0], -1285629795.0);
   EXPECT_DOUBLE_EQ(psi[0][1],  1284986248.8);
+}
+
+TEST(tot, gamma){
+  TOT sampler(1.0, 0.1, 1);
+  EXPECT_DOUBLE_EQ(tgamma(1.5), sampler.gamma(1.5));
+  EXPECT_FLOAT_EQ(2.363272, gamma(-1.5));
 }
 
 int main(int argc, char **argv){
