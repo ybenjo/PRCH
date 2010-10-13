@@ -1,4 +1,4 @@
-#include "tot.hpp"
+#include "./tot.hpp"
 
 void TOT::read_file(char *file_name){
 

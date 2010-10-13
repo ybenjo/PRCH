@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tot.hpp>
+#include "./tot.hpp"
 
 TEST(tot, read_file){
   TOT sampler;;

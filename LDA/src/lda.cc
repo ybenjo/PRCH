@@ -1,4 +1,4 @@
-#include "lda.hpp"
+#include "./lda.hpp"
 
 void LDA::read_file(char *filename){
 
