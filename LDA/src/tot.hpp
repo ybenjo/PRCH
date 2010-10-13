@@ -41,6 +41,9 @@ public:
   vector<string> split(string line);
   void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
 
+  //getter
+  vector<vector<unint> > get_Z(){return Z;};
+
 private:
   //サンプリング時のパラメータ
   double alpha, beta;

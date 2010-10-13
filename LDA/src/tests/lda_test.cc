@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "./lda.hpp"
+#include "../lda.hpp"
 
 TEST(lda, Testsplit){
   LDA lda;
