@@ -49,6 +49,7 @@ public:
   //getter
   vector<vector<unint> > get_Z(){return Z;};
   vector<vector<double> > get_PSI(){return PSI;};
+  vector<double > get_BETA(){return BETA;};
 
   //サンプリング周りの関数
   double get_uniform_rand();

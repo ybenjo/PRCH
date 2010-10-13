@@ -123,5 +123,11 @@ double TOT::gamma(double x){
 
 //ベータ関数
 double TOT::calc_BETA(double x, double y){
-  return gamma(x) * gamma(y) / gamma(x + y);
+  double ret = gamma(x) * gamma(y) / gamma(x + y);
+  //val != valならばvalがnanなので0を返す
+  if(ret != ret){
+    return 0;
+  }else{
+    return ret;
+  }
 }
