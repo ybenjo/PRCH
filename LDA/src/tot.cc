@@ -91,3 +91,19 @@ vector<double> TOT::calc_mean_and_var(const vector<unint>& years){
 
   return ret;
 }
+
+void TOT::set_PSI(){
+  //PSIを計算する
+  PSI.clear();
+  for(unint i = 0; i < K; ++i){
+    vector<double> each_psi, m_and_v = calc_mean_and_var(T_Z[i]);
+    double mean = m_and_v[0], var = m_and_v[1];
+    double tmp = (mean * (1-mean)/var - 1);
+    each_psi.push_back(mean * tmp);
+    each_psi.push_back((1-mean) * tmp);
+    PSI.push_back(each_psi);
+  }
+
+  //計算が終わったらtopic-timeのデータであるT_Zを初期化する
+  T_Z.clear();
+}

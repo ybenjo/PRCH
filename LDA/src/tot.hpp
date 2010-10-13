@@ -43,13 +43,16 @@ public:
 
   //setter
   void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
+  void set_PSI();
 
   //getter
   vector<vector<unint> > get_Z(){return Z;};
+  vector<vector<double> > get_PSI(){return PSI;};
 
   //サンプリング周りの関数
   double get_uniform_rand();
   vector<double> calc_mean_and_var(const vector<unint>& years);
+  
 
 private:
   //サンプリング時のパラメータ
@@ -72,8 +75,8 @@ private:
   map<unint, vector<unint> > T_Z;
 
   //PSIはベータ分布などに用いるパラメータ
-  //topicをkeyとして<psi_1, psi_2>をvalueに持つmap
-  map<unint, vector<unint> > PSI;
+  //<psi_1, psi_2>をvalueに持つvector。topicにはインデックスでアクセス
+  vector<vector<double> > PSI;
 
   //dicはidとwordを結びつけるmap
   map<unint, string> dic;

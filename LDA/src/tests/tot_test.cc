@@ -56,6 +56,15 @@ TEST(tot, calc_mean_and_var){
   EXPECT_DOUBLE_EQ(60.0 / 9, mean_and_var[1]);
 }
 
+TEST(tot, set_PSI){
+  TOT sampler(1.0, 0.1, 1);
+  sampler.read_file("./src/tests/tot_test.txt");
+  sampler.set_PSI();
+  vector<vector<double> > psi = sampler.get_PSI();
+  EXPECT_DOUBLE_EQ(psi[0][0], -1285629795.0);
+  EXPECT_DOUBLE_EQ(psi[0][1],  1284986248.8);
+}
+
 int main(int argc, char **argv){
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
