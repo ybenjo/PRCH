@@ -56,7 +56,12 @@ public:
   vector<double> calc_mean_and_var(const vector<unint>& years);
   double calc_BETA(double x, double y);
   double gamma(double x);
-
+  double calc_prob(unint doc_id, unint doc_time, unint word_id, unint topic);
+  unint select_new_topic(unint doc_id, unint doc_time, unint word_id);
+  void sampling_word(unint z_index);
+  void sampling_all_Z();
+  void sampling(unint count);
+  
 private:
   //サンプリング時のパラメータ
   double alpha, beta;
@@ -74,14 +79,15 @@ private:
   //イメージとしては<doc_id, doc_time, word_id, topic_1, ... , topic_count>を要素にもつvector
   vector<vector<unint> > Z;
 
-  //T_Zはtopicをkeyとして<time, ..., timeをvalueに持つmap
+  //T_Zはtopicをkeyとして<time, ..., time>をvalueに持つmap
   map<unint, vector<unint> > T_Z;
 
   //PSIはベータ関数などに用いるパラメータ
-  //<psi_1, psi_2>をvalueに持つvector。topicにはインデックスでアクセス
+  //<psi_1, psi_2>をvalueに持つvector。トピックをインデックスとしてアクセス
   vector<vector<double> > PSI;
 
   //ベータ関数の値を持つvector
+  //アクセスにはトピックをインデックスとして使用
   vector<double> BETA;
 
   //dicはidとwordを結びつけるmap
