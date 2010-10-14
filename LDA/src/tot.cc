@@ -226,3 +226,87 @@ void TOT::sampling(unint count){
     set_PSI_and_BETA();
   }
 }
+void TOT::read_dictionary(char *filename){
+  //filenameがNULLの時は読み込みを行わない
+  if(filename != NULL){
+    ifstream ifs;
+    ifs.open(filename, ios::in);
+    string line;
+    
+    while(getline(ifs, line)){
+      //想定する辞書ファイルの形式は
+      //word_id \t word
+      vector<string> elem = this->split(line);
+      unint word_id = atoi(elem[0].c_str());
+      string word = elem[1];
+      this->dic[word_id] = word;
+    }
+    ifs.close();
+  }
+}
+
+void TOT::output(char *filename, unint limit, char *flag){
+  map<key, unint>::iterator i;
+  for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+    unint j = (i->first).second;
+    this->N_j[j] += i->second;
+  }
+  
+  map<key, double> phi, theta;
+    
+  //phiの計算
+  for(i = this->N_wk.begin(); i != this->N_wk.end(); ++i){
+    unint word = (i->first).first;
+    unint topic = (i->first).second;
+    phi[key(word, topic)] = (this->N_wk[key(word, topic)] + this->beta) / (this->N_k[topic] + this->W * this->beta);
+  }
+  
+  //thetaの計算
+  //   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+  //     unint topic = (i->first).first;
+  //     unint doc = (i->first).second;
+  //     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
+  //   }
+
+  //出力ファイル名生成
+  ostringstream oss;
+  if(filename == NULL){
+    oss << this->input_file_name << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
+  }else{
+    oss << filename;
+  }
+
+  cout << oss.str() << endl;
+
+  //トピックごとに単語の上位limit件を出力
+  ofstream ofs;
+  ofs.open((oss.str()).c_str());
+  for(int k = 0; k < this->K; ++k){
+    multimap<double, unint> phi_;
+
+    //multimapに入れて確率順にソート
+    for(i = this->N_wk.begin(); i != this->N_wk.end(); ++i){
+      unint topic = (i->first).second;
+      if(topic == k){
+	unint word = (i->first).first;
+	phi_.insert(make_pair(phi[key(word, topic)], word));
+      }
+    }
+    
+    //出力
+    multimap<double, unint>::reverse_iterator rev;
+    ofs << "# " <<  k << "'s topic" << endl;
+    int count = 0;
+    for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
+      count++;
+      if(flag != NULL){
+	ofs << this->dic[rev->second] << "," << rev->first << endl;
+      }else{
+	ofs << rev->second << "," << rev->first << endl;
+      }
+      if(count > limit){break;}
+    }
+  }
+  ofs.close();
+}
+

@@ -61,6 +61,11 @@ public:
   void sampling_word(unint z_index);
   void sampling_all_Z();
   void sampling(unint count);
+
+  //output
+  void read_dictionary(char *filename);
+  void output(char *filename, unint limit, char *flag);
+
   
 private:
   //サンプリング時のパラメータ

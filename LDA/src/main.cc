@@ -46,6 +46,11 @@ int main(int argc, char **argv){
   case 1 :{
     cout << "-m 1 => Topics Over Time" << endl;
     //TOTを行う
+    TOT tot(alpha, beta, k, debug_flag);
+    tot.read_file(input_filename);
+    tot.sampling(iteration);
+    tot.read_dictionary(dic_filename);
+    tot.output(output_filename, limit, dic_filename);
     break;
   }
   default :{
