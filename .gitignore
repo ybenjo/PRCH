@@ -2,4 +2,7 @@
 *tmp*
 *.o
 /patent
-test
+*_test
+*.out
+main
+result*

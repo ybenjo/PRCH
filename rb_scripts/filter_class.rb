@@ -16,7 +16,7 @@ class Filter
       f.each{|l|
         ary = l.chomp.split("\t")
         if ary.size == 4
-          doc_id, word_id, date, count = ary.map{|v|v.to_i}
+          doc_id, date, word_id, count = ary.map{|v|v.to_i}
           @date[doc_id] = date
         else
           doc_id, word_id,  count = ary.map{|v|v.to_i}
