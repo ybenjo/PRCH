@@ -310,28 +310,39 @@ void TOT::output(char *filename, unint limit, char *flag){
   //トピックごとのヒストグラムを生成する
   //keyは[topic][time]の二重map
   map<unint, map<unint, unint> > hist;
+
+  //yearをkeyとしてtokenの総和をvalueとする
+  map<unint, unint> year_sum;
+  
   vector<vector<unint> >::iterator z;
   for(z = Z.begin(); z != Z.end(); ++z){
     unint time = (*z)[1];
     unint size = (*z).size();
+    year_sum[time] += size;
     for(unint i = 3; i < size; ++i){
       hist[(*z)[i]][time] += 1;
     }
   }
 
   oss << ".hist";
-  ofstream ofs_hist;
+  ofstream ofs_hist, ofs_hist_per;
   ofs_hist.open((oss.str()).c_str());
+  oss << "_per";
+  ofs_hist_per.open((oss.str()).c_str());
+  
   map<unint, map<unint, unint> >::iterator hist_ite;
   map<unint, unint>::iterator time_count_ite;
+  
   for(hist_ite = hist.begin(); hist_ite != hist.end(); ++hist_ite){
     unint topic = hist_ite->first;
     map<unint, unint> time_count = hist_ite->second;
     for(time_count_ite = time_count.begin(); time_count_ite != time_count.end(); ++time_count_ite){
-      ofs_hist << topic << "," << time_count_ite->first << "," << time_count_ite->second << endl;
+      ofs_hist << topic << "," << time_count_ite->first << "," << time_count_ite->second  << endl;
+      ofs_hist_per << topic << "," << time_count_ite->first << "," << time_count_ite->second / year_sum[time_count_ite->first] << endl;
     }
   }
-  ofs_hist.close();
   
+  ofs_hist.close();
+  ofs_hist_per.close();
 }
 
