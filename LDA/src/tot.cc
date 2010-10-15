@@ -308,5 +308,33 @@ void TOT::output(char *filename, unint limit, char *flag){
     }
   }
   ofs.close();
+
+
+  //トピックごとのヒストグラムを生成する
+  //keyは[topic][time]の二重map
+  map<unint, map<unint, unint> > hist;
+  vector<vector<unint> >::iterator z;
+  for(z = Z.begin(); z != Z.end(); ++z){
+    unint time = (*z)[1];
+    unint size = (*z).size();
+    for(unint i = 3; i < size; ++i){
+      hist[(*z)[i]][time] += 1;
+    }
+  }
+
+  oss << ".hist";
+  ofstream ofs_hist;
+  ofs_hist.open((oss.str()).c_str());
+  map<unint, map<unint, unint> >::iterator hist_ite;
+  map<unint, unint>::iterator time_count_ite;
+  for(hist_ite = hist.begin(); hist_ite != hist.end(); ++hist_ite){
+    unint topic = hist_ite->first;
+    map<unint, unint> time_count = hist_ite->second;
+    for(time_count_ite = time_count.begin(); time_count_ite != time_count.end(); ++time_count_ite){
+      ofs_hist << topic << "," << time_count_ite->first << "," << time_count_ite->second << endl;
+    }
+  }
+  ofs_hist.close();
+  
 }
 
