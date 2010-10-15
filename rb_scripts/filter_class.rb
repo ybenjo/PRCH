@@ -9,10 +9,17 @@ class Filter
     end
 
     @bow = Hash.new
+    @date = Hash.new
+    
     puts "Reading #{params[:bow]}"
     open(params[:bow]){|f|
       f.each{|l|
-        doc_id, word_id, count = l.chomp.split("\t").map{|v|v.to_i}
+        if l.chomp.split("\t").size == 4
+          doc_id, word_id, date, count = l.chomp.split("\t").map{|v|v.to_i}
+          @date[doc_id] = date
+        else
+          doc_id, word_id,  count = l.chomp.split("\t").map{|v|v.to_i}
+        end
         @bow[word_id] = [] if !@bow.include?(word_id)
         @bow[word_id].push [doc_id, count]
       }
@@ -101,7 +108,11 @@ class Filter
       @bow.each_pair do |w_id, ary|
         next if w_id.nil?
         ary.each do |e|
-          f.puts "#{e[0]}\t#{w_id}\t#{e[1]}"
+          if @date.empty?
+            f.puts "#{e[0]}\t#{w_id}\t#{e[1]}"
+          else
+            f.puts "#{e[0]}\t#{@date[e[0]]}\t#{w_id}\t#{e[1]}"
+          end
         end
       end
     }
