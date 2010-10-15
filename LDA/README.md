@@ -1,8 +1,8 @@
 # Latent Dirichlet Allocation
 ## 概要
-二つのアルゴリズムを実装している
-* Latent Dirichlet Allocation (Collapsed Gibbs Sampling)
-* Topics over Time: A Non-Markov Continuous-Time Model of Topical Trends
+二つのアルゴリズムを実装している  
+* Latent Dirichlet Allocation (Collapsed Gibbs Sampling)  
+* Topics over Time: A Non-Markov Continuous-Time Model of Topical Trends  
 
 ## 使い方
 make main  
