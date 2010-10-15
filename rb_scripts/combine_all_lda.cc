@@ -22,6 +22,21 @@ int main(int argc, char **argv){
   ifstream ifs;
   string line;
 
+  ostringstream oss_read_date;
+  ifstream ifs_date;
+  oss_read_date << fname << ".date" ;
+  map<string, string> doc_date;
+  
+  ifs_date.open((oss_read_date.str()).c_str(), ios::in);
+  cout << "Reading " << (oss_read_date.str()).c_str() << endl;
+  while(getline(ifs_date, line)){
+    vector<string> elem = split(line);
+    string doc_id = elem[0];
+    string date = elem[1];
+    doc_date[doc_id] = date;
+  }
+  ifs_date.close();
+
   map<pair<string, string>, int> total;
 
   ostringstream oss;
@@ -37,21 +52,6 @@ int main(int argc, char **argv){
   }
   ifs.close();
 
-  ostringstream oss_read_date;
-  ifstream ifs_date;
-  oss << fname << ".date" ;
-
-  map<string, string> doc_date;
-  ifs_date.open((oss_read_date.str()).c_str(), ios::in);
-  cout << "Reading " << (oss_read_date.str()).c_str() << endl;
-  while(getline(ifs_date, line)){
-    vector<string> elem = split(line);
-    string doc_id = elem[0];
-    string date = elem[1];
-    cout << date << endl;
-    doc_date[doc_id] = date;
-  }
-  ifs_date.close();
   
   ofstream ofs, ofs_date;
   ostringstream oss_out, oss_date;
