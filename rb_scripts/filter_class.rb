@@ -14,11 +14,12 @@ class Filter
     puts "Reading #{params[:bow]}"
     open(params[:bow]){|f|
       f.each{|l|
-        if l.chomp.split("\t").size == 4
-          doc_id, word_id, date, count = l.chomp.split("\t").map{|v|v.to_i}
+        ary = l.chomp.split("\t")
+        if ary.size == 4
+          doc_id, word_id, date, count = ary.map{|v|v.to_i}
           @date[doc_id] = date
         else
-          doc_id, word_id,  count = l.chomp.split("\t").map{|v|v.to_i}
+          doc_id, word_id,  count = ary.map{|v|v.to_i}
         end
         @bow[word_id] = [] if !@bow.include?(word_id)
         @bow[word_id].push [doc_id, count]
