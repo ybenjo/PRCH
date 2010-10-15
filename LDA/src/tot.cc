@@ -33,7 +33,6 @@ void TOT::read_file(char *file_name){
   }
   ifs.close();
 
-  show_debug("Finish reading file and set N and Z.");
   cout << "Finish reading file and set N and Z." << endl;
   
   //ユニークな単語数を取得
@@ -216,10 +215,8 @@ void TOT::sampling_all_Z(){
 }
 
 void TOT::sampling(unint count){
+  set_PSI_and_BETA();
   for(unint i = 0; i < count; ++i){
-    ostringstream oss;
-    oss << i + 1  << "'s iteration";
-    show_debug(oss.str());
     cout << i + 1  << "'s iteration" << endl;
     
     sampling_all_Z();
