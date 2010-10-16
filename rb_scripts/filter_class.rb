@@ -12,7 +12,8 @@ class Filter
     @date = Hash.new
     
     puts "Reading #{params[:bow]}"
-    open(params[:bow]){|f|
+    @bow_name = params[:bow]
+    open(@bow_name){|f|
       f.each{|l|
         ary = l.chomp.split("\t")
         if ary.size == 4
@@ -27,7 +28,7 @@ class Filter
     }
     
     @dic = Hash.new
-    @dic_path = params[:dic] || params[:bow].sub(/\.txt/, ".word")
+    @dic_path = params[:dic] || @bow_name.sub(/\.txt/, ".word")
     if !File.exist?(@dic_path)
       puts "No dictionary file in #{@dic_path}"
       exit(1)
@@ -100,7 +101,7 @@ class Filter
   end
 
   def output
-    name = @dic_path.sub(/\.word/,"")
+    name = @bow_name
 
     name += "_h_#{@h_size}" if @h_size
     name += "_a_#{@a_size}" if @a_size
