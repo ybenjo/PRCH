@@ -21,6 +21,10 @@ void LDA::read_file(char *filename){
     unint doc_id = atoi(elem[0].c_str());
     unint word_id = atoi(elem[1].c_str());
     unint count = atoi(elem[2].c_str());
+    if(elem.size() > 3){
+      word_id = count;
+      count = atoi(elem[3].c_str());
+    }
 
     //bag_of_wordsへの挿入
     this->uniq_word_id.insert(word_id);
@@ -215,14 +219,13 @@ void LDA::output(char *filename, unint limit, char *flag){
     
     //出力
     multimap<double, unint>::reverse_iterator rev;
-    ofs << "# " <<  k << "'s topic" << endl;
     int count = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
       count++;
       if(flag != NULL){
-	ofs << this->dic[rev->second] << "," << rev->first << endl;
+	ofs << k << "," << this->dic[rev->second] << "," << rev->first << endl;
       }else{
-	ofs << rev->second << "," << rev->first << endl;
+	ofs << k << "," << rev->second << "," << rev->first << endl;
       }
       if(count > limit){break;}
     }

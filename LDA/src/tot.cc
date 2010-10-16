@@ -116,7 +116,7 @@ void TOT::set_PSI_and_BETA(){
 }
 
 //tgammaは負数を受け付けないので、しょうがないから実装する
-//負じゃない場合はtgammaをそのまま返し、負の場合整数かどうかの判定は行わずにそのまま返す。
+//負じゃない場合はtgammaをそのまま返し、負の場合は計算する
 //その時の式はman tgammaのものを使用
 double TOT::gamma(double x){
   if(x > 0){
@@ -128,8 +128,13 @@ double TOT::gamma(double x){
 }
 
 //ベータ関数
-//負の整数によってnanになった場合は0を返す
+//負の整数が入力された場合は0を返す
 double TOT::calc_BETA(double x, double y){
+  //負の整数判定
+  if( (x < 0 && ceil(x) == x) || (y < 0 && ceil(y) == y) || ((x+y) < 0 && ceil(x+y) == x+y) ){
+    return 0;
+  }
+  
   double ret = gamma(x) * gamma(y) / gamma(x + y);
   //val != valならばvalがnanなので0を返す
   if(ret != ret){
@@ -292,14 +297,13 @@ void TOT::output(char *filename, unint limit, char *flag){
     
     //出力
     multimap<double, unint>::reverse_iterator rev;
-    ofs << "# " <<  k << "'s topic" << endl;
     int count = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
       count++;
       if(flag != NULL){
-	ofs << this->dic[rev->second] << "," << rev->first << endl;
+	ofs << k << "," << this->dic[rev->second] << "," << rev->first << endl;
       }else{
-	ofs << rev->second << "," << rev->first << endl;
+	ofs << k << "," << rev->second << "," << rev->first << endl;
       }
       if(count > limit){break;}
     }

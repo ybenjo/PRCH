@@ -1,6 +1,7 @@
 # Latent Dirichlet Allocation
 ## 概要
-二つのアルゴリズムを実装しています  
+二つのアルゴリズムを実装しています
+
 * Latent Dirichlet Allocation (Collapsed Gibbs Sampling, 以下LDA)  
 * Topics over Time: A Non-Markov Continuous-Time Model of Topical Trends (以下TOT)  
 
@@ -47,15 +48,14 @@ timestampはドキュメントに紐付けられた時間情報です。論文�
 	3\tPRML  
   
 出力ファイルは以下のような形式のカンマ区切りテキストです  
-	\# \d's topic
-	word_id_1,prob_id_1  
-	word_id_2,prob_id_2
-	word_id_3,prob_id_3
+	topic_id,word_id_1,prob_id_1  
+	topic_id,word_id_2,prob_id_2
+	topic_id,word_id_3,prob_id_3
 
-TOTの場合、以下のような時間に対するトピックの頻度情報も出力します
-	topic1,timestamp1,count
-	topic1,timestamp2,count
-	topic1,timestamp3,count
+TOTの場合、以下のような時間に対するトピックの頻度情報及びその比率も出力します
+	topic_id,timestamp1,count
+	topic_id,timestamp2,count
+	topic_id,timestamp3,count
 
 
 ## 参考文献
