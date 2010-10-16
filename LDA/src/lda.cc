@@ -195,7 +195,7 @@ void LDA::output(char *filename, unint limit, char *flag){
   //出力ファイル名生成
   ostringstream oss;
   if(filename == NULL){
-    oss << this->input_file_name << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
+    oss << this->input_file_name << "_LDA"  << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
   }else{
     oss << filename;
   }

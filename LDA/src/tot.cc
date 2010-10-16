@@ -264,16 +264,16 @@ void TOT::output(char *filename, unint limit, char *flag){
   }
   
   //thetaの計算
-  for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
-    unint topic = (i->first).first;
-    unint doc = (i->first).second;
-    theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
-  }
+  //   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+  //     unint topic = (i->first).first;
+  //     unint doc = (i->first).second;
+  //     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
+  //   }
 
   //出力ファイル名生成
   ostringstream oss;
   if(filename == NULL){
-    oss << this->input_file_name << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
+    oss << this->input_file_name << "_TOT" << "_result_a" << alpha << "b" << beta << "k" << K << "L" << limit;
   }else{
     oss << filename;
   }
