@@ -45,6 +45,7 @@ public:
   //setter
   void set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count);
   void set_PSI_and_BETA();
+  void set_initial_Z();
 
   //getter
   vector<vector<unint> > get_Z(){return Z;};
@@ -53,7 +54,7 @@ public:
 
   //サンプリング周りの関数
   double get_uniform_rand();
-  vector<double> calc_mean_and_var(const vector<unint>& years);
+  vector<double> calc_mean_and_var(const vector<double>& years);
   double calc_BETA(double x, double y);
   double gamma(double x);
   double calc_prob(unint doc_id, unint doc_time, unint word_id, unint topic);
@@ -85,7 +86,11 @@ private:
   vector<vector<unint> > Z;
 
   //T_Zはtopicをkeyとして<time, ..., time>をvalueに持つmap
-  map<unint, vector<unint> > T_Z;
+  //map<unint, vector<unint> > T_Z;
+  map<unint, vector<double> > T_Z;
+
+  //time_normはtimeをkeyとしてそれを[0,1]に押し込めたものを持つ
+  map<unint, double> time_norm;
 
   //PSIはベータ関数などに用いるパラメータ
   //<psi_1, psi_2>をvalueに持つvector。トピックをインデックスとしてアクセス
@@ -100,6 +105,7 @@ private:
   
   //word_idのuniqを取るために使うset
   set<unint> uniq_word_id;
+  set<unint> uniq_doc_time;
 
   //debug用のフラグ
   bool debug_flag;

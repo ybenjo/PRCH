@@ -15,6 +15,7 @@ void TOT::read_file(char *file_name){
   show_debug("Start reading file.");
   cout << "Start reading file." << endl;
   int line_count = 0;
+  unint time_max = 0, time_min = NULL;
   while(getline(ifs, line)){
     //想定するファイルの形式は
     //doc_id \t time \t word_id \t count
@@ -28,6 +29,15 @@ void TOT::read_file(char *file_name){
     uniq_word_id.insert(word_id);
     set_N_and_Z(doc_id, doc_time, word_id, count);
 
+    uniq_doc_time.insert(doc_time);
+    if(time_max < doc_time){
+      time_max = doc_time;
+    }else if(time_min > doc_time){
+      time_min = doc_time;
+    }else if(time_min == NULL){
+      time_min = doc_time;
+    }
+
     line_count++;
     show_debug(line_count);
   }
@@ -37,6 +47,13 @@ void TOT::read_file(char *file_name){
   
   //ユニークな単語数を取得
   W = uniq_word_id.size();
+
+
+  //timestampを[0,1]に押し込める
+  for(set<unint>::iterator i = uniq_doc_time.begin(); i != uniq_doc_time.end();++i){
+    time_norm[*i] = (double)(*i - time_min) / (time_max - time_min);
+  }
+  set_initial_Z();
 }
 
 //ここでZは
@@ -58,6 +75,16 @@ void TOT::set_N_and_Z(unint doc_id, unint doc_time, unint word_id, unint count){
   this->Z.push_back(each_doc);
 }
 
+void TOT::set_initial_Z(){
+  map<unint, vector<double> >::iterator z;
+  vector<double>::iterator elem;
+  for(z = T_Z.begin(); z != T_Z.end(); ++z){
+    for(elem = z->second.begin(); elem != z->second.end(); ++elem){
+      *elem = time_norm[*elem];
+    }
+  }
+}
+
 vector<string> TOT::split(string line){
   vector<string> words;
   stringstream ss(line);
@@ -74,8 +101,8 @@ double TOT::get_uniform_rand(){
 }
 
 //vectorから平均と「標本」分散を計算しvectorとして返す
-vector<double> TOT::calc_mean_and_var(const vector<unint>& years){
-  vector<unint>::const_iterator i;
+vector<double> TOT::calc_mean_and_var(const vector<double>& years){
+  vector<double>::const_iterator i;
   unint size = years.size();
   double mean = 0.0, var = 0.0;
   vector<double> ret;
@@ -116,11 +143,13 @@ void TOT::set_PSI_and_BETA(){
 }
 
 //tgammaは負数を受け付けないので、しょうがないから実装する
-//負じゃない場合はtgammaをそのまま返し、負の場合は計算する
+//負じゃない場合はtgammaをそのまま返し、負の場合は整数であればNULLを返しそうでなければ計算する
 //その時の式はman tgammaのものを使用
 double TOT::gamma(double x){
   if(x > 0){
     return tgamma(x);
+  }else if(ceil(x) == x){
+    return NULL;
   }else{
     double xxx = -1 * x + 1;
     return M_PI / ( sin(M_PI * xxx) * tgamma(xxx) );
@@ -128,14 +157,14 @@ double TOT::gamma(double x){
 }
 
 //ベータ関数
-//負の整数が入力された場合は0を返す
 double TOT::calc_BETA(double x, double y){
   //負の整数判定
-  if( (x < 0 && ceil(x) == x) || (y < 0 && ceil(y) == y) || ((x+y) < 0 && ceil(x+y) == x+y) ){
+  double g_x = gamma(x), g_y = gamma(y), g_xy = gamma(x+y);
+  if(g_x == NULL || g_y == NULL || g_xy == NULL){
     return 0;
   }
   
-  double ret = gamma(x) * gamma(y) / gamma(x + y);
+  double ret = g_x * g_y / g_xy;
   //val != valならばvalがnanなので0を返す
   if(ret != ret){
     return 0;
@@ -145,6 +174,7 @@ double TOT::calc_BETA(double x, double y){
 }
 
 //元論文3ページ右下の式を実装
+//doc_timeをおきかえる
 double TOT::calc_prob(unint doc_id, unint doc_time, unint word_id, unint topic){
   //BETA[topic]が0である場合には0除算エラーが起こるので0を返す
   if(BETA[topic] == 0){
@@ -152,7 +182,7 @@ double TOT::calc_prob(unint doc_id, unint doc_time, unint word_id, unint topic){
   }else{
     return ( N_kj[key(topic, doc_id)] + alpha - 1 ) *
       ( N_wk[key(word_id, topic)] + beta - 1 ) / ( N_k[topic] + W * beta - 1 ) *
-      ( pow(1 - doc_time, PSI[topic][0] -1) * pow(doc_time, PSI[topic][1] - 1) ) / BETA[topic];
+      ( pow(1 - time_norm[doc_time], PSI[topic][0] -1) * pow(time_norm[doc_time], PSI[topic][1] - 1) ) / BETA[topic];
   }
 }
 
@@ -169,9 +199,6 @@ unint TOT::select_new_topic(unint doc_id, unint doc_time, unint word_id){
       prob[i] += prob[i-1];
     }
   }
-
-  //uは0-1のため、probの最大値をかけて0-Kの範囲に引き伸ばす
-  u *= K;
 
   //サンプリング
   unint new_topic = 0;
@@ -205,7 +232,7 @@ void TOT::sampling_word(unint z_index){
     N_wk[key(word_id, new_topic)]++;
     N_k[new_topic]++;
 
-    T_Z[new_topic].push_back(doc_time);
+    T_Z[new_topic].push_back(time_norm[doc_time]);
   }
 }
 
