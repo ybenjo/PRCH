@@ -101,7 +101,7 @@ class Filter
   end
 
   def output
-    name = @bow_name
+    name = @bow_name.sub(/\.txt/,"")
 
     name += "_h_#{@h_size}" if @h_size
     name += "_a_#{@a_size}" if @a_size
@@ -119,10 +119,10 @@ class Filter
       end
     }
     
-    open("#{name}.word", "w"){|f|
-      @dic.each_pair do |w_id, word|
-        f.puts "#{w_id}\t#{word}"
-      end
-    }
+#     open("#{name}.word", "w"){|f|
+#       @dic.each_pair do |w_id, word|
+#         f.puts "#{w_id}\t#{word}"
+#       end
+#     }
   end
 end
