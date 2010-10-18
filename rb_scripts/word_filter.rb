@@ -9,6 +9,7 @@ if $0 == __FILE__
     opt.on("-d [OPTION]"){|v| params[:dic] = v}
     opt.on("-h [OPTION]"){|v| params[:h_size] = v}
     opt.on("-a [OPTION]"){|v| params[:a_size] = v}
+    opt.on("-k [OPTION]"){|v| params[:k_size] = v}
     opt.parse!(ARGV)
   }
   
