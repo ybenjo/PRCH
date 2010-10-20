@@ -369,7 +369,7 @@ void TOT::output(char *filename, unint limit, char *flag){
     map<unint, unint> time_count = hist_ite->second;
     for(time_count_ite = time_count.begin(); time_count_ite != time_count.end(); ++time_count_ite){
       ofs_hist << topic << "," << time_count_ite->first << "," << time_count_ite->second  << endl;
-      ofs_hist_per << topic << "," << time_count_ite->first << "," << time_count_ite->second / year_sum[time_count_ite->first] << endl;
+      ofs_hist_per << topic << "," << time_count_ite->first << "," << (double)time_count_ite->second / year_sum[time_count_ite->first] << endl;
     }
   }
   

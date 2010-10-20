@@ -47,9 +47,9 @@ TEST(tot, read_file){
 TEST(tot, calc_mean_and_var){
   TOT sampler(1.0, 0.1, 1);
   //test = [0,9]
-  vector<unint> test;
+  vector<double> test;
   for(unint i = 1; i < 10; ++i){
-    test.push_back(i);
+    test.push_back((double)i);
   }
   vector<double> mean_and_var = sampler.calc_mean_and_var(test);
   EXPECT_DOUBLE_EQ(5, mean_and_var[0]);
@@ -72,6 +72,13 @@ TEST(tot, set_PSI_and_BETA){
   vector<double> beta = sampler.get_BETA();
   //psi[0][0]が負の整数のため、betaがnanになる(-> 0を返す)
   EXPECT_DOUBLE_EQ(beta[0], 0);
+}
+
+TEST(tot, rand){
+  TOT sampler(1.0, 0.1, 1);
+  for(int i = 0; i < 10; ++i){
+    cout << sampler.get_uniform_rand() << endl;
+  }
 }
 
 int main(int argc, char **argv){
