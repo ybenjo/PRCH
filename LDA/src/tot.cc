@@ -233,6 +233,9 @@ void TOT::sampling_word(unint z_index){
     N_k[new_topic]++;
 
     T_Z[new_topic].push_back(time_norm[doc_time]);
+
+    //Zそのものを更新していないので更新する！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+    Z[z_index][token_index] = new_topic;
   }
 }
 
@@ -294,6 +297,8 @@ void TOT::output(char *filename, unint limit, char *flag){
   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
     unint topic = (i->first).first;
     unint doc = (i->first).second;
+    cout << "N_kj is " << N_kj[key(topic, doc)] << endl;
+    cout << "N_j is " << N_j[doc] << endl;
     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
   }
   
