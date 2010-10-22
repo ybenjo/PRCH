@@ -290,13 +290,13 @@ void TOT::output(char *filename, unint limit, char *flag){
     phi[key(word, topic)] = (this->N_wk[key(word, topic)] + this->beta) / (this->N_k[topic] + this->W * this->beta);
   }
   
-  //thetaの計算
-  //   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
-  //     unint topic = (i->first).first;
-  //     unint doc = (i->first).second;
-  //     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
-  //   }
-
+  // thetaの計算
+  for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+    unint topic = (i->first).first;
+    unint doc = (i->first).second;
+    theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
+  }
+  
   //出力ファイル名生成
   ostringstream oss;
   if(filename == NULL){
@@ -307,13 +307,17 @@ void TOT::output(char *filename, unint limit, char *flag){
 
   cout << oss.str() << endl;
 
-  //トピックごとに単語の上位limit件を出力
-  ofstream ofs;
-  ofs.open((oss.str()).c_str());
+  //phi及びthetaの出力
+  ofstream ofs_phi, ofs_theta;
+  ofs_phi.open((oss.str()).c_str());
+  oss << "_doc";
+  ofs_theta.open((oss.str()).c_str());
+  
   for(int k = 0; k < this->K; ++k){
     multimap<double, unint> phi_;
+    multimap<double, unint> theta_;
 
-    //multimapに入れて確率順にソート
+    //phi_をmultimapに入れて確率順にソート
     for(i = this->N_wk.begin(); i != this->N_wk.end(); ++i){
       unint topic = (i->first).second;
       if(topic == k){
@@ -321,21 +325,43 @@ void TOT::output(char *filename, unint limit, char *flag){
 	phi_.insert(make_pair(phi[key(word, topic)], word));
       }
     }
+
+    //theta_をmultimapに入れて確率順にソート
+    for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
+      unint topic = (i->first).first;
+      if(topic == k){
+	unint doc = (i->first).second;
+	theta_.insert(make_pair(theta[key(topic, doc)], doc));
+      }
+    }
+
     
     //出力
     multimap<double, unint>::reverse_iterator rev;
-    int count = 0;
+
+    //phiの出力
+    int count_phi = 0;
     for(rev = phi_.rbegin(); rev != phi_.rend(); ++rev){
-      count++;
+      count_phi++;
       if(flag != NULL){
-	ofs << k << "," << this->dic[rev->second] << "," << rev->first << endl;
+	ofs_phi << k << "," << this->dic[rev->second] << "," << rev->first << endl;
       }else{
-	ofs << k << "," << rev->second << "," << rev->first << endl;
+	ofs_phi << k << "," << rev->second << "," << rev->first << endl;
       }
-      if(count > limit){break;}
+      if(count_phi > limit){break;}
     }
+
+    //thetaの出力
+    int count_theta = 0;
+    for(rev = theta_.rbegin(); rev != theta_.rend(); ++rev){
+      count_theta++;
+      ofs_theta << k << "," << rev->second << "," << rev->first << endl;
+      if(count_theta > limit){break;}
+    }
+
   }
-  ofs.close();
+  ofs_phi.close();
+  ofs_theta.close();
 
 
   //トピックごとのヒストグラムを生成する
