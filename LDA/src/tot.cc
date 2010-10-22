@@ -297,8 +297,6 @@ void TOT::output(char *filename, unint limit, char *flag){
   for(i = this->N_kj.begin(); i != this->N_kj.end(); ++i){
     unint topic = (i->first).first;
     unint doc = (i->first).second;
-    cout << "N_kj is " << N_kj[key(topic, doc)] << endl;
-    cout << "N_j is " << N_j[doc] << endl;
     theta[key(topic, doc)] = (this->N_kj[key(topic, doc)] + this->alpha) / (this->N_j[doc] + this->K * this->alpha);
   }
   
